@@ -6,6 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Filter, FileText, Video, Book, Bookmark, Download, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Mock resources data
 const mockArticles = [
@@ -155,20 +158,21 @@ const categories = [
   'Data Science', 'Machine Learning', 'DevOps', 'Career'
 ];
 
-const ResourcesPage = () => {
+const Resources = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const isMobile = useIsMobile();
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-2">Learning Resources</h1>
-      <p className="text-gray-600 mb-8">
+    <div className="container mx-auto px-4 py-8 sm:py-12">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-2">Learning Resources</h1>
+      <p className="text-gray-600 mb-6 sm:mb-8">
         Expand your knowledge with our curated collection of resources.
       </p>
       
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-grow">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <Input 
             placeholder="Search resources..." 
             className="pl-10"
@@ -177,13 +181,65 @@ const ResourcesPage = () => {
           />
         </div>
         
-        <Button variant="outline" className="flex items-center gap-2">
-          <Filter size={16} />
-          Filters
-        </Button>
+        {isMobile ? (
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
+                <Filter size={16} />
+                Filters
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[80vh]">
+              <SheetHeader className="mb-4">
+                <SheetTitle>Filter Resources</SheetTitle>
+              </SheetHeader>
+              <div className="grid gap-4">
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Categories</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {categories.map((category) => (
+                      <Button 
+                        key={category}
+                        variant={selectedCategory === category ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSelectedCategory(category)}
+                        className="justify-start"
+                      >
+                        {category}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Resource Type</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" size="sm" className="justify-start">
+                      <FileText size={14} className="mr-2" />
+                      Articles
+                    </Button>
+                    <Button variant="outline" size="sm" className="justify-start">
+                      <Video size={14} className="mr-2" />
+                      Tutorials
+                    </Button>
+                    <Button variant="outline" size="sm" className="justify-start">
+                      <Book size={14} className="mr-2" />
+                      E-Books
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        ) : (
+          <Button variant="outline" className="flex items-center gap-2">
+            <Filter size={16} />
+            Filters
+          </Button>
+        )}
       </div>
       
-      <div className="mb-8 overflow-x-auto">
+      {/* Categories - horizontal scrollable on mobile */}
+      <ScrollArea className="w-full mb-6">
         <div className="flex space-x-2 pb-2">
           {categories.map((category) => (
             <Button 
@@ -197,55 +253,55 @@ const ResourcesPage = () => {
             </Button>
           ))}
         </div>
-      </div>
+      </ScrollArea>
       
       <Tabs defaultValue="articles" className="w-full">
-        <TabsList className="mb-8">
+        <TabsList className="mb-6 w-full justify-start overflow-x-auto hide-scrollbar">
           <TabsTrigger value="articles" className="flex items-center gap-1">
-            <FileText size={16} />
+            <FileText size={isMobile ? 14 : 16} />
             Articles
           </TabsTrigger>
           <TabsTrigger value="tutorials" className="flex items-center gap-1">
-            <Video size={16} />
+            <Video size={isMobile ? 14 : 16} />
             Tutorials
           </TabsTrigger>
           <TabsTrigger value="ebooks" className="flex items-center gap-1">
-            <Book size={16} />
+            <Book size={isMobile ? 14 : 16} />
             E-Books
           </TabsTrigger>
           <TabsTrigger value="bookmarks" className="flex items-center gap-1">
-            <Bookmark size={16} />
+            <Bookmark size={isMobile ? 14 : 16} />
             My Bookmarks
           </TabsTrigger>
         </TabsList>
         
         <TabsContent value="articles">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {mockArticles.map((article) => (
               <Card key={article.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col h-full">
                     <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-sm text-gray-500">{article.date}</div>
-                        <div className="text-sm text-gray-500">{article.readTime}</div>
+                      <div className="flex flex-wrap items-center justify-between mb-2 gap-2">
+                        <div className="text-xs sm:text-sm text-gray-500">{article.date}</div>
+                        <div className="text-xs sm:text-sm text-gray-500">{article.readTime}</div>
                       </div>
-                      <h3 className="text-xl font-semibold mb-2">{article.title}</h3>
-                      <p className="text-gray-600 mb-3">{article.description}</p>
-                      <p className="text-sm text-gray-500 mb-4">By {article.author}</p>
+                      <h3 className="text-lg sm:text-xl font-semibold mb-2">{article.title}</h3>
+                      <p className="text-sm sm:text-base text-gray-600 mb-3">{article.description}</p>
+                      <p className="text-xs sm:text-sm text-gray-500 mb-4">By {article.author}</p>
                     </div>
                     
                     <div className="mt-auto">
                       <div className="flex flex-wrap gap-2 mb-4">
                         {article.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary">{tag}</Badge>
+                          <Badge key={index} variant="secondary" className="text-xs">{tag}</Badge>
                         ))}
                       </div>
                       
                       <div className="flex justify-end">
-                        <Button asChild variant="outline" size="sm" className="flex items-center gap-1">
+                        <Button asChild variant="outline" size="sm" className="flex items-center gap-1 text-xs sm:text-sm">
                           <a href={article.link} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink size={14} />
+                            <ExternalLink size={14} className="sm:block hidden" />
                             Read Article
                           </a>
                         </Button>
@@ -257,38 +313,38 @@ const ResourcesPage = () => {
             ))}
           </div>
           
-          <div className="mt-8 flex justify-center">
+          <div className="mt-6 sm:mt-8 flex justify-center">
             <Button variant="outline">Load More Articles</Button>
           </div>
         </TabsContent>
         
         <TabsContent value="tutorials">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {mockTutorials.map((tutorial) => (
               <Card key={tutorial.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col h-full">
                     <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-sm text-gray-500">Duration: {tutorial.duration}</div>
-                        <div className="text-sm text-gray-500">Level: {tutorial.level}</div>
+                      <div className="flex flex-wrap items-center justify-between mb-2 gap-2">
+                        <div className="text-xs sm:text-sm text-gray-500">Duration: {tutorial.duration}</div>
+                        <div className="text-xs sm:text-sm text-gray-500">Level: {tutorial.level}</div>
                       </div>
-                      <h3 className="text-xl font-semibold mb-2">{tutorial.title}</h3>
-                      <p className="text-gray-600 mb-3">{tutorial.description}</p>
-                      <p className="text-sm text-gray-500 mb-4">By {tutorial.author}</p>
+                      <h3 className="text-lg sm:text-xl font-semibold mb-2">{tutorial.title}</h3>
+                      <p className="text-sm sm:text-base text-gray-600 mb-3">{tutorial.description}</p>
+                      <p className="text-xs sm:text-sm text-gray-500 mb-4">By {tutorial.author}</p>
                     </div>
                     
                     <div className="mt-auto">
                       <div className="flex flex-wrap gap-2 mb-4">
                         {tutorial.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary">{tag}</Badge>
+                          <Badge key={index} variant="secondary" className="text-xs">{tag}</Badge>
                         ))}
                       </div>
                       
                       <div className="flex justify-end">
-                        <Button asChild variant="outline" size="sm" className="flex items-center gap-1">
+                        <Button asChild variant="outline" size="sm" className="flex items-center gap-1 text-xs sm:text-sm">
                           <a href={tutorial.link} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink size={14} />
+                            <ExternalLink size={14} className="sm:block hidden" />
                             Start Tutorial
                           </a>
                         </Button>
@@ -300,38 +356,38 @@ const ResourcesPage = () => {
             ))}
           </div>
           
-          <div className="mt-8 flex justify-center">
+          <div className="mt-6 sm:mt-8 flex justify-center">
             <Button variant="outline">Load More Tutorials</Button>
           </div>
         </TabsContent>
         
         <TabsContent value="ebooks">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {mockEbooks.map((ebook) => (
               <Card key={ebook.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col h-full">
                     <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-sm text-gray-500">{ebook.pages} pages</div>
-                        <div className="text-sm text-gray-500">Format: {ebook.format}</div>
+                      <div className="flex flex-wrap items-center justify-between mb-2 gap-2">
+                        <div className="text-xs sm:text-sm text-gray-500">{ebook.pages} pages</div>
+                        <div className="text-xs sm:text-sm text-gray-500">Format: {ebook.format}</div>
                       </div>
-                      <h3 className="text-xl font-semibold mb-2">{ebook.title}</h3>
-                      <p className="text-gray-600 mb-3">{ebook.description}</p>
-                      <p className="text-sm text-gray-500 mb-4">By {ebook.author}</p>
+                      <h3 className="text-lg sm:text-xl font-semibold mb-2">{ebook.title}</h3>
+                      <p className="text-sm sm:text-base text-gray-600 mb-3">{ebook.description}</p>
+                      <p className="text-xs sm:text-sm text-gray-500 mb-4">By {ebook.author}</p>
                     </div>
                     
                     <div className="mt-auto">
                       <div className="flex flex-wrap gap-2 mb-4">
                         {ebook.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary">{tag}</Badge>
+                          <Badge key={index} variant="secondary" className="text-xs">{tag}</Badge>
                         ))}
                       </div>
                       
-                      <div className="flex justify-end space-x-2">
-                        <Button asChild variant="outline" size="sm" className="flex items-center gap-1">
+                      <div className="flex justify-end">
+                        <Button asChild variant="outline" size="sm" className="flex items-center gap-1 text-xs sm:text-sm">
                           <a href={ebook.link} target="_blank" rel="noopener noreferrer">
-                            <Download size={14} />
+                            <Download size={14} className="sm:block hidden" />
                             Download
                           </a>
                         </Button>
@@ -343,15 +399,15 @@ const ResourcesPage = () => {
             ))}
           </div>
           
-          <div className="mt-8 flex justify-center">
+          <div className="mt-6 sm:mt-8 flex justify-center">
             <Button variant="outline">Load More E-Books</Button>
           </div>
         </TabsContent>
         
         <TabsContent value="bookmarks">
-          <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-            <h3 className="text-xl font-medium mb-2">Your Bookmarked Resources</h3>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-8 text-center">
+            <h3 className="text-lg sm:text-xl font-medium mb-2">Your Bookmarked Resources</h3>
+            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
               You haven't saved any resources yet. Browse our collection and bookmark items for later.
             </p>
             
@@ -363,4 +419,4 @@ const ResourcesPage = () => {
   );
 };
 
-export default ResourcesPage;
+export default Resources;
