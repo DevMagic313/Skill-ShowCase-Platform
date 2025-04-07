@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { 
+  ToggleGroup, 
+  ToggleGroupItem 
+} from '@/components/ui/toggle-group';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 // Mock resources data
 const mockArticles = [
@@ -161,6 +165,7 @@ const categories = [
 const Resources = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [showCategories, setShowCategories] = useState(false);
   const isMobile = useIsMobile();
 
   return (
@@ -189,7 +194,7 @@ const Resources = () => {
                 Filters
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh]">
+            <SheetContent side="bottom" className="h-[80vh] pb-12">
               <SheetHeader className="mb-4">
                 <SheetTitle>Filter Resources</SheetTitle>
               </SheetHeader>
@@ -203,7 +208,7 @@ const Resources = () => {
                         variant={selectedCategory === category ? "default" : "outline"}
                         size="sm"
                         onClick={() => setSelectedCategory(category)}
-                        className="justify-start"
+                        className="justify-start h-auto py-2 text-xs"
                       >
                         {category}
                       </Button>
@@ -213,15 +218,15 @@ const Resources = () => {
                 <div>
                   <h3 className="text-sm font-medium mb-2">Resource Type</h3>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" size="sm" className="justify-start">
+                    <Button variant="outline" size="sm" className="justify-start h-auto py-2 text-xs">
                       <FileText size={14} className="mr-2" />
                       Articles
                     </Button>
-                    <Button variant="outline" size="sm" className="justify-start">
+                    <Button variant="outline" size="sm" className="justify-start h-auto py-2 text-xs">
                       <Video size={14} className="mr-2" />
                       Tutorials
                     </Button>
-                    <Button variant="outline" size="sm" className="justify-start">
+                    <Button variant="outline" size="sm" className="justify-start h-auto py-2 text-xs">
                       <Book size={14} className="mr-2" />
                       E-Books
                     </Button>
@@ -238,22 +243,61 @@ const Resources = () => {
         )}
       </div>
       
-      {/* Categories - horizontal scrollable on mobile */}
-      <ScrollArea className="w-full mb-6">
-        <div className="flex space-x-2 pb-2">
-          {categories.map((category) => (
+      {/* Categories - Mobile Collapsible / Desktop Horizontal scrollable */}
+      {isMobile ? (
+        <Collapsible
+          open={showCategories}
+          onOpenChange={setShowCategories}
+          className="mb-6 border rounded-md overflow-hidden"
+        >
+          <CollapsibleTrigger asChild>
             <Button 
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(category)}
-              className="whitespace-nowrap"
+              variant="ghost" 
+              className="w-full flex justify-between items-center py-3 px-4"
             >
-              {category}
+              <span>Categories</span>
+              <span className="text-sm text-muted-foreground">
+                {selectedCategory !== 'All' && `Selected: ${selectedCategory}`}
+              </span>
+              <span>{showCategories ? '▲' : '▼'}</span>
             </Button>
-          ))}
-        </div>
-      </ScrollArea>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="px-4 pb-4">
+            <ToggleGroup 
+              type="single" 
+              value={selectedCategory}
+              onValueChange={(value) => value && setSelectedCategory(value)}
+              className="flex flex-wrap gap-2"
+            >
+              {categories.map((category) => (
+                <ToggleGroupItem 
+                  key={category} 
+                  value={category}
+                  className="text-xs h-8"
+                >
+                  {category}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </CollapsibleContent>
+        </Collapsible>
+      ) : (
+        <ScrollArea className="w-full mb-6">
+          <div className="flex space-x-2 pb-2">
+            {categories.map((category) => (
+              <Button 
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className="whitespace-nowrap"
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+        </ScrollArea>
+      )}
       
       <Tabs defaultValue="articles" className="w-full">
         <TabsList className="mb-6 w-full justify-start overflow-x-auto hide-scrollbar">
